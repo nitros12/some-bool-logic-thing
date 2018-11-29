@@ -1,0 +1,97 @@
+name:                boollogicsolve
+version:             0.1.0.0
+github:              "nitros12/boollogicsolve"
+license:             BSD3
+author:              "Ben Simms"
+maintainer:          "ben@bensimms.moe"
+copyright:           "2018 Ben Simms"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/nitros12/boollogicsolve#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- megaparsec >= 7.0
+- parser-combinators >= 1.0
+- text >= 1.2
+- deriving-compat >= 0.5
+- uniplate >= 1.6
+- mtl >= 2.2
+
+library:
+  source-dirs: src
+
+executables:
+  boollogicsolve-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - boollogicsolve
+
+tests:
+  boollogicsolve-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - boollogicsolve
+
+default-extensions:
+  - NoMonomorphismRestriction
+  - AutoDeriveTypeable
+  - BangPatterns
+  - BinaryLiterals
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveTraversable
+  - DoAndIfThenElse
+  - EmptyDataDecls
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - KindSignatures
+  - LambdaCase
+  - MonadFailDesugaring
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - OverloadedStrings
+  - PartialTypeSignatures
+  - PatternGuards
+  - PolyKinds
+  - RankNTypes
+  - RecordWildCards
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TupleSections
+  - TypeFamilies
+  - TypeApplications
+  - TypeSynonymInstances
+  - ViewPatterns
+  - DuplicateRecordFields
