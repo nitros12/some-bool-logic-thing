@@ -45,7 +45,8 @@ instance Show Logic where
     where not_prec = 8
 
   showsPrec d (Ident c) = showChar c
-  showsPrec d (Literal l) = shows l
+  showsPrec d (Literal True) = showChar '1'
+  showsPrec d (Literal False) = showChar '0'
 
 type Parser = Parsec Void String
 

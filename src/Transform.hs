@@ -8,58 +8,59 @@ import           Data.Generics.Uniplate.Operations
 import           Control.Monad.Writer.Lazy
 
 reduce :: Logic -> Logic
-reduce (Or  (Literal True)  _              ) = Literal True
-reduce (Or  _               (Literal True) ) = Literal True
+reduce (Literal True  `Or`  _            ) = Literal True
+reduce (_             `Or`  Literal True ) = Literal True
 
-reduce (Or  (Literal False) a              ) = a
-reduce (Or  a               (Literal False)) = a
+reduce (Literal False `Or`  a            ) = a
+reduce (a             `Or`  Literal False) = a
 
-reduce (And (Literal True)  a              ) = a
-reduce (And a               (Literal True) ) = a
+reduce (Literal True  `And` a            ) = a
+reduce (a             `And` Literal True ) = a
 
-reduce (And (Literal False) _              ) = Literal False
-reduce (And _               (Literal False)) = Literal False
+reduce (Literal False `And` _            ) = Literal False
+reduce (_             `And` Literal False) = Literal False
 
-reduce (Or a b) | a == b        = a
+reduce (a `Or` b) | a == b             = a
 
-reduce (And a b) | a == b       = a
+reduce (a `And` b) | a == b            = a
 
-reduce (Not (Not a))            = a
+reduce (Not (Not a))                   = a
 
-reduce (Or a (Not b)) | a == b  = Literal True
-reduce (Or (Not b) a) | a == b  = Literal True
+reduce (a `Or` Not b) | a == b         = Literal True
+reduce (Not b `Or` a) | a == b         = Literal True
 
-reduce (And a (Not b)) | a == b = Literal False
-reduce (And (Not b) a) | a == b = Literal False
+reduce (a `And` Not b) | a == b        = Literal False
+reduce (Not b `And` a) | a == b        = Literal False
 
 -- demorgans
-reduce (Not (Or a b)   )        = And (Not a) (Not b)
--- reduce (Not (And a b)        )               = Or (Not a) (Not b)
+-- reduce (Not a `Or` Not b             ) = Not (a `And` b)
+reduce (Not (a `Or` b)               ) = Not a `And` Not b
+
+-- reduce (Not a `And` Not b            ) = Not (a `Or` b)
+reduce (Not (a `And` b)              ) = Not a `Or` Not b
 
 -- associative
-reduce (And (And a b) c)        = And a (And b c)
-reduce (Or  (Or  a b) c)        = Or a (Or b c)
+reduce ((a `And` b) `And` c          ) = a `And` (b `And` c)
+reduce ((a `Or`  b) `Or`  c          ) = a `Or` (b `Or` c)
 
 -- distributive
-reduce (And (Or a b) (Or c d)) | a == c = Or a (And b d) -- (a + b)(a + d) -> a + bd
-reduce (And (Or a b) (Or c d)) | a == d = Or a (And b c) -- (a + b)(c + a) -> a + bc
-reduce (And (Or a b) (Or c d)) | b == c = Or b (And a d) -- (a + b)(b + d) -> b + ad
-reduce (And (Or a b) (Or c d)) | b == d = Or a (And b d) -- (a + b)(c + b) -> b + ac
+reduce ((a `Or` b) `And` (c `Or` d)) | a == c = a `Or` (b `And` d) -- (a + b)(a + d) -> a + bd
+reduce ((a `Or` b) `And` (c `Or` d)) | a == d = a `Or` (b `And` c) -- (a + b)(c + a) -> a + bc
+reduce ((a `Or` b) `And` (c `Or` d)) | b == c = b `Or` (a `And` d) -- (a + b)(b + d) -> b + ad
+reduce ((a `Or` b) `And` (c `Or` d)) | b == d = a `Or` (b `And` d) -- (a + b)(c + b) -> b + ac
 
-reduce (Or (And a b) (And c d)) | a == c = And a (Or b d) -- ab + ad -> a(b + d)
-reduce (Or (And a b) (And c d)) | a == d = And a (Or b c) -- ab + ca -> a(b + c)
-reduce (Or (And a b) (And c d)) | b == c = And b (Or a d) -- ab + bd -> b(a + d)
-reduce (Or (And a b) (And c d)) | b == d = And a (Or b d) -- ab + cb -> b(a + c)
+reduce ((a `And` b) `Or` (c `And` d)) | a == c = a `And` (b `Or` d) -- ab + ad -> a(b + d)
+reduce ((a `And` b) `Or` (c `And` d)) | a == d = a `And` (b `Or` c) -- ab + ca -> a(b + c)
+reduce ((a `And` b) `Or` (c `And` d)) | b == c = b `And` (a `Or` d) -- ab + bd -> b(a + d)
+reduce ((a `And` b) `Or` (c `And` d)) | b == d = a `And` (b `Or` d) -- ab + cb -> b(a + c)
 
--- reduce (And a         (Or b c)) = And (Or a b) (Or b c)
--- reduce (And (Or b c)  a       ) = And (Or a b) (Or b c)
-
-reduce a                        = a
+reduce a                               = a
 
 apReduce :: Logic -> Writer [Logic] Logic
 apReduce x = do
   tell [x]
   let x' = transform reduce x
+  -- let x' = transform reduce x
   if x /= x' then apReduce x' else pure x
 
 
